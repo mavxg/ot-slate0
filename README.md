@@ -1,2 +1,2 @@
 # ot-qube0
-Qube ottype for use with ShareJS
+Slate ottype for use with ShareJS

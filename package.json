@@ -1,0 +1,27 @@
+{
+  "name": "ot-slate0",
+  "version": "0.0.1",
+  "description": "Slate ottype for use with ShareJS",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mavxg/ot-slate0.git"
+  },
+  "keywords": [
+    "ottype",
+    "slatejs",
+    "sharejs"
+  ],
+  "author": "Benjamin Norrington <ben@norrington.net>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mavxg/ot-slate0/issues"
+  },
+  "homepage": "https://github.com/mavxg/ot-slate0"
+}
