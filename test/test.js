@@ -27,14 +27,12 @@ describe('Compose', function() {
 		var inv = ot.invert(opA);
 		var comp = ot.compose(opA, inv);
 		var compb = ot.compose(inv, opA);
-		console.log(JSON.stringify(inv));
-		console.log(JSON.stringify(compb));
 		assert.equal("[18]", JSON.stringify(comp));
 	});
 
 	it('Can compose inserts', function() {
 		var comp = ot.compose(opA, opB);
-		assert.equal('[6,{i:" really actually"},12]', JSON.stringify(comp));
+		assert.equal('[6,{"i":" really actually"},12]', JSON.stringify(comp));
 	});
 
 	it('Compose of inverse is inverse of compose', function() {
