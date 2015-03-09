@@ -46,5 +46,37 @@ describe('Compose', function() {
 });
 
 describe('Transform', function() {
-	//TODO test transforms
+	var doc = ["This is some text."];
+	var opA = [6,{i:" really"},18-6];
+	var opB = [6,{i:" actually"},18-6];
+	var opC = [18,{i:" That I can add to the end of."}];
+	var opD = [8,{d:" some"},5];
+
+	it('Transform left', function(){
+		var opAt = ot.transform(opA, opB, 'left');
+		var opBt = ot.transform(opB, opA, 'right');
+		assert.equal('[6,{"i":" really"},21]',JSON.stringify(opAt));
+		assert.equal('[13,{"i":" actually"},12]',JSON.stringify(opBt));
+	});
+
+	it('Transform right', function(){
+		var opAt = ot.transform(opA, opB, 'right');
+		var opBt = ot.transform(opB, opA, 'left');
+		assert.equal('[15,{"i":" really"},12]',JSON.stringify(opAt));
+		assert.equal('[6,{"i":" actually"},19]',JSON.stringify(opBt));
+	});
+
+	it('Transform delete', function(){
+		var opDleft = ot.transform(opD, opA, 'left');
+		var opDright = ot.transform(opD, opA, 'right');
+		assert.equal('[15,{"d":" some"},5]',JSON.stringify(opDleft));
+		assert.equal('[15,{"d":" some"},5]',JSON.stringify(opDright));
+	});
+
+	it('Transform end', function(){
+		var opCleft = ot.transform(opC, opA, 'left');
+		var opCright = ot.transform(opC, opA, 'right');
+		assert.equal('[25,{"i":" That I can add to the end of."}]',JSON.stringify(opCleft));
+		assert.equal('[25,{"i":" That I can add to the end of."}]',JSON.stringify(opCright));
+	});
 });
