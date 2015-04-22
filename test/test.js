@@ -66,26 +66,19 @@ describe('Transform', function() {
 });
 
 describe('Apply', function() {
-	var doc = {type:"document", id: 1, seed:1, nodes:[], length:1}
-	var opA = [1,"This is some text"];
-	var opB = [1,"This is ",{tag:"strong"},"some",{end:"strong"}," text"];
-	var opC = [1,"This is some",{end:"strong"}," text"];
-	var opD = [1,"This is ",{tag:"strong"},"some"," text"];
+	var doc = {type:"document", id: 1, seed:1, nodes:[], length:0}
+	var opA = [0,"This is some text"];
+	var opB = [0,"This is ",{tag:"strong"},"some",{end:"strong"}," text"];
+	var opD = [0,"This is ",{tag:"strong"},"some"," text"];
 
 	it('Can insert text', function() {
 		var docp = ot.apply(doc, opA);
-		assert.equal('{"type":"document","id":1,"nodes":["This is some text"],"length":18,"seed":1}', JSON.stringify(docp));
+		assert.equal('{"type":"document","id":1,"nodes":["This is some text"],"length":17,"seed":1}', JSON.stringify(docp));
 	});
 
 	it('Can insert tags', function() {
 		var docp = ot.apply(doc, opB);
-		assert.equal('{"type":"document","id":1,"nodes":["This is ",{"tag":"strong"},"some",{"end":"strong"}," text"],"length":20,"seed":1}', JSON.stringify(docp));
-	});
-
-	it('Throws missing start tag', function() {
-		assert.throws(function() {
-			ot.apply(doc, opC);
-		}, "Missing start tag");
+		assert.equal('{"type":"document","id":1,"nodes":["This is ",{"tag":"strong"},"some",{"end":"strong"}," text"],"length":19,"seed":1}', JSON.stringify(docp));
 	});
 
 	it('Throws unbalanced tags', function() {
@@ -95,27 +88,29 @@ describe('Apply', function() {
 	});
 });
 
+
 describe('Tag cache', function() {
-	var doc = {type:"document", id: 1, seed:4, nodes:[
-		{type:"p", id:2, nodes:["First paragraph."], length:17},
-		{type:"p", id:3, nodes:["Second paragraph."], length:18},
-		{type:"p", id:4, nodes:["Third paragraph."], length:17},
-	], length:53}
+    var doc = {type:"document", id: 1, seed:4, nodes:[
+        {type:"p", id:2, nodes:["First paragraph."], length:17},
+        {type:"p", id:3, nodes:["Second paragraph."], length:18},
+        {type:"p", id:4, nodes:["Third paragraph."], length:17},
+    ], length:52}
 	var doca = {type:"document", id: 1, seed:4, nodes:[
-		{type:"p", id:2, 
-			nodes:["First ",{tag:"strong"},"paragraph."], 
-			length:18},
-		{type:"p", id:3, 
-			nodes:["Second ",{end:"strong"},"paragraph."], 
-			length:19,
-			_tags:[{"tag":"strong"}]},
-		{type:"p", id:4,
-			nodes:["Third paragraph."], 
-			length:17},
-	], length:55}
-	var opA = [8,{tag:"strong"},18,{end:"strong"},27];
-	var opB = [13,{end:"strong"},9,{tag:"strong"},33];
-	var opC = [27,{d:{end:"strong"}},17,{end:"strong"},10];
+        {type:"p", id:2,
+            nodes:["First ",{tag:"strong"},"paragraph."], 
+            length:18},
+        {type:"p", id:3, 
+            nodes:["Second ",{end:"strong"},"paragraph."], 
+            length:19,
+            _tags:[{"tag":"strong"}]},
+        {type:"p", id:4,
+            nodes:["Third paragraph."], 
+            length:17},
+    ], length:54}
+	var opA = [7,{tag:"strong"},18,{end:"strong"},27];
+	var opB = [12,{end:"strong"},9,{tag:"strong"},33];
+	var opC = [31,{tag:"strong"},4,{end:"strong"},19];
+	var opD = [26,{d:{end:"strong"}},17,{end:"strong"},10];
 
 	it('Build tag cache', function() {
 		var docp = ot.apply(doc, opA);
@@ -124,11 +119,18 @@ describe('Tag cache', function() {
 
 	it('Alter tag cache', function() {
 		var docp = ot.apply(doca, opB);
-		assert.equal('{"type":"document","id":1,"nodes":[{"type":"p","id":2,"nodes":["First ",{"tag":"strong"},"para",{"end":"strong"},"graph."],"length":19},{"type":"p","id":3,"nodes":["Se",{"tag":"strong"},"cond ",{"end":"strong"},"paragraph."],"length":20},{"type":"p","id":4,"nodes":["Third paragraph."],"length":17}],"length":57,"seed":4}', JSON.stringify(docp));
+		assert.equal(undefined, docp.nodes[1]._tags);
+	});
+
+	it('Preserves tag cache', function() {
+		var docp = ot.apply(doca, opC);
+		assert.equal('[{"tag":"strong"}]', JSON.stringify(docp.nodes[1]._tags));
+		assert.equal(undefined, docp.nodes[2]._tags);
 	});
 
 	it('Can delete tag', function() {
-		var docp = ot.apply(doca, opC);
-		assert.equal('', JSON.stringify(docp));
+		var docp = ot.apply(doca, opD);
+		assert.equal('[{"tag":"strong"}]', JSON.stringify(docp.nodes[1]._tags));
+		assert.equal('[{"tag":"strong"}]', JSON.stringify(docp.nodes[2]._tags));
 	});
 });

@@ -5,6 +5,6 @@ Slate ottype for use with ShareJS
 
 * [x] JSON based model
 * [ ] Tag aware transform
-* [ ] Tag stack cache _tags:[] in apply
+* [X] Tag stack cache _tags:[] in apply
 * [ ] Delete does full prefix
 * [ ] transformCursor (multi selection)
