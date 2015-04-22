@@ -66,7 +66,7 @@ describe('Transform', function() {
 });
 
 describe('Apply', function() {
-	var doc = {type:"document", id: 0, seed:0, nodes:[], length:1}
+	var doc = {type:"document", id: 1, seed:1, nodes:[], length:1}
 	var opA = [1,"This is some text"];
 	var opB = [1,"This is ",{tag:"strong"},"some",{end:"strong"}," text"];
 	var opC = [1,"This is some",{end:"strong"}," text"];
@@ -92,5 +92,43 @@ describe('Apply', function() {
 		assert.throws(function() {
 			ot.apply(doc, opD);
 		}, "Unbalanced tags");
+	});
+});
+
+describe('Tag cache', function() {
+	var doc = {type:"document", id: 1, seed:4, nodes:[
+		{type:"p", id:2, nodes:["First paragraph."], length:17},
+		{type:"p", id:3, nodes:["Second paragraph."], length:18},
+		{type:"p", id:4, nodes:["Third paragraph."], length:17},
+	], length:53}
+	var doca = {type:"document", id: 1, seed:4, nodes:[
+		{type:"p", id:2, 
+			nodes:["First ",{tag:"strong"},"paragraph."], 
+			length:18},
+		{type:"p", id:3, 
+			nodes:["Second ",{end:"strong"},"paragraph."], 
+			length:19,
+			_tags:[{"tag":"strong"}]},
+		{type:"p", id:4,
+			nodes:["Third paragraph."], 
+			length:17},
+	], length:55}
+	var opA = [8,{tag:"strong"},18,{end:"strong"},27];
+	var opB = [13,{end:"strong"},9,{tag:"strong"},33];
+	var opC = [27,{d:{end:"strong"}},17,{end:"strong"},10];
+
+	it('Build tag cache', function() {
+		var docp = ot.apply(doc, opA);
+		assert.equal('[{"tag":"strong"}]', JSON.stringify(docp.nodes[1]._tags));
+	});
+
+	it('Alter tag cache', function() {
+		var docp = ot.apply(doca, opB);
+		assert.equal('{"type":"document","id":1,"nodes":[{"type":"p","id":2,"nodes":["First ",{"tag":"strong"},"para",{"end":"strong"},"graph."],"length":19},{"type":"p","id":3,"nodes":["Se",{"tag":"strong"},"cond ",{"end":"strong"},"paragraph."],"length":20},{"type":"p","id":4,"nodes":["Third paragraph."],"length":17}],"length":57,"seed":4}', JSON.stringify(docp));
+	});
+
+	it('Can delete tag', function() {
+		var docp = ot.apply(doca, opC);
+		assert.equal('', JSON.stringify(docp));
 	});
 });

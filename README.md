@@ -7,3 +7,5 @@ Slate ottype for use with ShareJS
 * [ ] Tag aware transform
 * [ ] Tag stack cache _tags:[] in apply
 * [ ] Delete does full prefix
+* [ ] transformCursor (multi selection)
+* [ ]
