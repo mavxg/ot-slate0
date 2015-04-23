@@ -73,12 +73,12 @@ describe('Apply', function() {
 
 	it('Can insert text', function() {
 		var docp = ot.apply(doc, opA);
-		assert.equal('{"type":"document","id":1,"nodes":["This is some text"],"length":17,"seed":1}', JSON.stringify(docp));
+		assert.equal('["This is some text"]', JSON.stringify(docp.nodes));
 	});
 
 	it('Can insert tags', function() {
 		var docp = ot.apply(doc, opB);
-		assert.equal('{"type":"document","id":1,"nodes":["This is ",{"tag":"strong"},"some",{"end":"strong"}," text"],"length":19,"seed":1}', JSON.stringify(docp));
+		assert.equal('["This is ",{"tag":"strong"},"some",{"end":"strong"}," text"]', JSON.stringify(docp.nodes));
 	});
 
 	it('Throws unbalanced tags', function() {
@@ -132,5 +132,32 @@ describe('Tag cache', function() {
 		var docp = ot.apply(doca, opD);
 		assert.equal('[{"tag":"strong"}]', JSON.stringify(docp.nodes[1]._tags));
 		assert.equal('[{"tag":"strong"}]', JSON.stringify(docp.nodes[2]._tags));
+	});
+});
+
+
+describe('Nesting', function() {
+    var doc = {type:"document", id: 1, seed:4, nodes:[
+        {type:"p", id:2, nodes:["First paragraph."], length:17},
+        {type:"ol", id:3, nodes:["Second list item."], length:18},
+        {type:"p", id:4, nodes:["Third paragraph."], length:17},
+    ], length:52}
+    var opA = [35,{_type:"p", indent:1},"Nested paragraph",17];
+    var opB = [35,{_type:"p", indent:1},"Nested paragraph",{_type:"p", indent:1},"Second Nested",17];
+    var opC = [35,{_type:"p", indent:1},"Nested paragraph",{_type:"p", indent:2},"Double Nested",17];
+
+	it('Can nest a paragraph in a list item', function() {
+		var docp = ot.apply(doc, opA);
+		assert.equal('["Second list item.",{"type":"p","id":5,"nodes":["Nested paragraph"],"length":17,"indent":1}]', JSON.stringify(docp.nodes[1].nodes));
+	});
+
+	it('Can nest multiple paragraphs', function() {
+		var docp = ot.apply(doc, opB);
+		assert.equal(3, docp.nodes[1].nodes.length);
+	});
+
+	it('Can double nest a paragraph', function() {
+		var docp = ot.apply(doc, opC);
+		assert.equal('{"type":"p","id":6,"nodes":["Double Nested"],"length":14,"indent":2}', JSON.stringify(docp.nodes[1].nodes[1].nodes[1]));
 	});
 });
